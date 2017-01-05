@@ -28,8 +28,26 @@
 
     <string name="error_no_network">No network connectivity! Will load stock cursor when the network is available.</string>
     <string name="error_no_stocks">No stocks added! Hit the floating action button to add one.</string>
+    <string name="error_stock_exist">This stock does not exist or there is a network problem.</string>
 
     <string name="toast_stock_added_no_connectivity">Symbol %s added. Will refresh when network available.</string>
     <string name="toast_no_connectivity">Will refresh when network available.</string>
 
+    <string name="bad_stock">Stock symbol does not exist:</string>
+    <string name="bad_stock_key">badStock</string>
+    <string name="stock_invalid_chars">Use only capital letters, numbers or dashes (A-Z, 0-9, -)</string>
+    <string name="error_message">Error message</string>
+    <string name="symbol_clicked">Symbol clicked: %s</string>
+    <string name="intent_handled" translatable="false">Intent handled</string>
+    <string name="why_are_we_here" translatable="false">WHYAREWEHERE</string>
+
+    "
+    <string name="running_sync_jobs" translatable="false">Running sync job</string>
+    "
+    <string name="error_fetching_quotes" translatable="false">Error fetching stock quotes</string>
+    "
+    <string name="scheduling_task" translatable="false">Scheduling a periodic task</string>
+    "
+    <string name="unknown_uri" translatable="false">Unknown URI:</string>
+    <string name="empty_stock_list">Stocks have not been added.</string>
 </resources>

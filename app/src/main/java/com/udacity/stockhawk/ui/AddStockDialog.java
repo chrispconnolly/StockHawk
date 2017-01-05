@@ -6,6 +6,9 @@ import android.app.Dialog;
 import android.app.DialogFragment;
 import android.content.DialogInterface;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -42,6 +45,21 @@ public class AddStockDialog extends DialogFragment {
                 return true;
             }
         });
+        stock.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {}
+
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                String symbol = stock.getText().toString();
+                if(!symbol.matches("^([A-Z0-9\\-]+)$"))
+                    stock.setError(getString(R.string.stock_invalid_chars));
+            }
+        });
+
         builder.setView(custom);
 
         builder.setMessage(getString(R.string.dialog_title));
@@ -64,12 +82,17 @@ public class AddStockDialog extends DialogFragment {
     }
 
     private void addStock() {
-        Activity parent = getActivity();
-        if (parent instanceof MainActivity) {
-            ((MainActivity) parent).addStock(stock.getText().toString());
+        try {
+            Activity parent = getActivity();
+            if (parent instanceof MainActivity) {
+                ((MainActivity) parent).addStock(stock.getText().toString());
+            }
+            dismissAllowingStateLoss();
         }
-        dismissAllowingStateLoss();
-    }
+        catch(Exception exception){
+            Log.e(getString(R.string.error_no_stocks), exception.getStackTrace().toString());
+        }
 
+    }
 
 }

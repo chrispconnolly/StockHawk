@@ -1,6 +1,7 @@
 package com.udacity.stockhawk.ui;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
@@ -13,6 +14,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -28,6 +30,8 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import timber.log.Timber;
 
+import static android.preference.PreferenceManager.getDefaultSharedPreferences;
+
 public class MainActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor>,
         SwipeRefreshLayout.OnRefreshListener,
         StockAdapter.StockAdapterOnClickHandler {
@@ -40,10 +44,10 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
     @BindView(R.id.error)
     TextView error;
     private StockAdapter adapter;
+    SharedPreferences.OnSharedPreferenceChangeListener spChanged;
 
-    @Override
     public void onClick(String symbol) {
-        Timber.d("Symbol clicked: %s", symbol);
+        Timber.d(getString(R.string.symbol_clicked), symbol);
     }
 
     @Override
@@ -78,7 +82,28 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
             }
         }).attachToRecyclerView(stockRecyclerView);
 
+        spChanged = new SharedPreferences.OnSharedPreferenceChangeListener() {
+                    @Override
+                    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences,
+                                                          String key) {
+                        String message = getString(R.string.bad_stock) + " " + sharedPreferences.getString(getString(R.string.bad_stock_key), "");
+                        Toast.makeText(getApplication(), message, Toast.LENGTH_LONG).show();
+                    }
+                };
+    }
 
+    @Override
+    public void onResume(){
+        SharedPreferences sharedPreferences = getDefaultSharedPreferences(this);
+        sharedPreferences.registerOnSharedPreferenceChangeListener(spChanged);
+        super.onResume();
+    }
+
+    @Override
+    public void onPause(){
+        SharedPreferences sharedPreferences = getDefaultSharedPreferences(this);
+        sharedPreferences.unregisterOnSharedPreferenceChangeListener(spChanged);
+        super.onResume();
     }
 
     private boolean networkUp() {
@@ -101,7 +126,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
             swipeRefreshLayout.setRefreshing(false);
             Toast.makeText(this, R.string.toast_no_connectivity, Toast.LENGTH_LONG).show();
         } else if (PrefUtils.getStocks(this).size() == 0) {
-            Timber.d("WHYAREWEHERE");
+            Timber.d(getString(R.string.why_are_we_here));
             swipeRefreshLayout.setRefreshing(false);
             error.setText(getString(R.string.error_no_stocks));
             error.setVisibility(View.VISIBLE);
@@ -115,17 +140,23 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
     }
 
     void addStock(String symbol) {
-        if (symbol != null && !symbol.isEmpty()) {
+        try {
+            if (symbol != null && !symbol.isEmpty()) {
 
-            if (networkUp()) {
-                swipeRefreshLayout.setRefreshing(true);
-            } else {
-                String message = getString(R.string.toast_stock_added_no_connectivity, symbol);
-                Toast.makeText(this, message, Toast.LENGTH_LONG).show();
+                if (networkUp()) {
+                    swipeRefreshLayout.setRefreshing(true);
+                } else {
+                    String message = getString(R.string.toast_stock_added_no_connectivity, symbol);
+                    Toast.makeText(this, message, Toast.LENGTH_LONG).show();
+                }
+
+                PrefUtils.addStock(this, symbol);
+                QuoteSyncJob.syncImmediately(this);
             }
-
-            PrefUtils.addStock(this, symbol);
-            QuoteSyncJob.syncImmediately(this);
+        }
+        catch (Exception exception) {
+            Toast.makeText(this, getString(R.string.error_stock_exist), Toast.LENGTH_SHORT);
+            Log.e(this.getClass().toString(), exception.toString());
         }
     }
 
