@@ -50,4 +50,7 @@
     "
     <string name="unknown_uri" translatable="false">Unknown URI:</string>
     <string name="empty_stock_list">Stocks have not been added.</string>
+    <string name="title_activity_detail">DetailActivity</string>
+
+    <string name="line_series_label">History</string>
 </resources>

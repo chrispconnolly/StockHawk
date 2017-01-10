@@ -6,7 +6,6 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.Binder;
 import android.os.Build;
-import android.util.Log;
 import android.widget.AdapterView;
 import android.widget.RemoteViews;
 import android.widget.RemoteViewsService;
@@ -70,37 +69,26 @@ public class WidgetRemoteViewsService extends RemoteViewsService {
                     return null;
                 }
                 RemoteViews views = new RemoteViews(getPackageName(),
-                        R.layout.widget_list_item);
+                        R.layout.list_item_quote);
                 int stockId = data.getInt(INDEX_ID);
                 String symbol = data.getString(INDEX_SYMBOL);
                 String price = data.getString(INDEX_PRICE);
-                String absoluteChange = data.getString(INDEX_ABSOLUTE_CHANGE);
                 String percentageChange = data.getString(INDEX_PERCENT_CHANGE);
-                String history = data.getString(INDEX_HISTORY);
 
-                views.setTextViewText(R.id.widget_symbol, symbol);
-                views.setTextViewText(R.id.widget_price, price);
-                views.setTextViewText(R.id.widget_absolute_change, absoluteChange);
-                views.setTextViewText(R.id.widget_percentage_change, percentageChange);
-                views.setTextViewText(R.id.widget_history, history);
+                views.setTextViewText(R.id.symbol, symbol + "| ");
+                views.setTextViewText(R.id.price, price + "| ");
+                views.setTextViewText(R.id.change, percentageChange);
 
                 final Intent fillInIntent = new Intent();
                 Uri stockUri = Contract.Quote.makeUriForStock(symbol);
                 fillInIntent.setData(stockUri);
-                views.setOnClickFillInIntent(R.id.widget_list_item, fillInIntent);
+                views.setOnClickFillInIntent(R.id.list_item_quote, fillInIntent);
                 return views;
             }
 
             @Override
             public RemoteViews getLoadingView() {
-                try {
-                    RemoteViews result = new RemoteViews(getPackageName(), R.layout.widget_list_item);
-                    return result;
-                }
-                catch(Exception exception) {
-                    Log.e("RemoteViews", exception.toString());
-                    return null;
-                }
+                return null;
             }
 
             @Override
